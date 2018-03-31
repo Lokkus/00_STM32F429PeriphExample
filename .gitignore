@@ -1,0 +1,5 @@
+/CMSIS/
+/HAL_Driver/
+LinkerScript.ld
+/startup/
+/Utilities/
