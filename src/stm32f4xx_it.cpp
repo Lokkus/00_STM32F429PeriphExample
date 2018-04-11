@@ -15,13 +15,9 @@
 #include <cmsis_os.h>
 #endif
 #include "stm32f4xx_it.h"
+#include "user_logger.h"
 
-/* Private typedef -----------------------------------------------------------*/
-/* Private define ------------------------------------------------------------*/
-/* Private macro -------------------------------------------------------------*/
-/* Private variables ---------------------------------------------------------*/
-/* Private function prototypes -----------------------------------------------*/
-/* Private functions ---------------------------------------------------------*/
+extern Logger logger;
 
 /******************************************************************************/
 /*            	  	    Processor Exceptions Handlers                         */
@@ -40,3 +36,27 @@ void SysTick_Handler(void)
 	osSystickHandler();
 #endif
 }
+
+extern "C" void USART1_IRQHandler(void)
+{
+    char c = 0;
+    while(logger.getUSARTinstance()->SR & USART_SR_RXNE)
+    {
+        c = logger.getSingleCharacter();
+        logger.sendSingleCharacter(c);
+        if(c == '\r')
+        {
+            logger.addCharacterToReceivedData(c);
+            logger.addCharacterToReceivedData('\n');
+            logger.addReceivedStringToVector();
+            logger.sendData('\n');
+        }
+        else
+        {
+            logger.addCharacterToReceivedData(c);
+        }
+    }
+}
+
+
+
